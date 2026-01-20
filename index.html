@@ -27,19 +27,23 @@
 
         .team-name-display {
             font-weight: 800;
-            letter-spacing: 0.05em;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
         }
         
         .navy-bg { background-color: var(--navy-dark); }
         .navy-accent { background-color: var(--navy-medium); }
 
-        /* Slim Bar Layout Styles */
+        /* Increased Height and Wide profile for OBS */
         .scoreboard-bar {
-            height: 60px;
+            height: 90px;
             display: flex;
             align-items: stretch;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.6);
             transition: all 0.3s ease;
         }
 
@@ -47,29 +51,30 @@
             display: flex;
             align-items: center;
             padding: 0 25px;
-            flex: 1; /* This makes teams expand to fill wide space */
-            min-width: 0;
+            flex: 1 1 0%; /* Allow growth and shrinkage equally */
+            min-width: 0; /* Critical for text-overflow to work in flex */
         }
 
         .goal-box {
-            width: 70px;
+            width: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 3.5rem;
             background: rgba(255,255,255,0.05);
             border-left: 1px solid rgba(255,255,255,0.1);
             border-right: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0; /* Keep numbers same size */
         }
 
         .center-info {
-            width: 220px; /* Fixed width for the center so it stays anchored */
+            width: 260px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-left: 3px solid var(--accent-blue);
-            border-right: 3px solid var(--accent-blue);
+            border-left: 4px solid var(--accent-blue);
+            border-right: 4px solid var(--accent-blue);
             flex-shrink: 0;
         }
 
@@ -77,38 +82,38 @@
             color: var(--gold);
             font-family: 'ui-monospace', monospace;
             font-weight: 700;
-            font-size: 1.75rem;
+            font-size: 2.5rem;
             line-height: 1;
         }
 
         .period-text {
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             font-weight: 900;
             color: #94a3b8;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
+            margin-bottom: 2px;
         }
 
         @media (max-width: 767px) {
-            .scoreboard-bar { height: 50px; }
-            .team-block { padding: 0 10px; }
-            .team-name-display { font-size: 0.85rem; }
-            .goal-box { width: 50px; font-size: 1.6rem; }
-            .center-info { width: 120px; border-left-width: 2px; border-right-width: 2px; }
-            .timer-text { font-size: 1.25rem; }
-            .period-text { font-size: 0.55rem; }
+            .scoreboard-bar { height: 60px; }
+            .team-block { padding: 0 15px; }
+            .team-name-display { font-size: 1rem; }
+            .goal-box { width: 60px; font-size: 2rem; }
+            .center-info { width: 140px; border-left-width: 2px; border-right-width: 2px; }
+            .timer-text { font-size: 1.5rem; }
+            .period-text { font-size: 0.6rem; }
         }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center justify-start">
 
-    <!-- Widened Horizontal Bar Scoreboard -->
-    <!-- Changed max-w-5xl to max-w-[1400px] or w-full for desktop impact -->
-    <div id="mainWrapper" class="main-wrapper w-full max-w-[1400px] rounded-lg overflow-hidden border border-white/10 navy-bg scoreboard-bar mb-10">
+    <!-- Widened & Tall Horizontal Bar Scoreboard -->
+    <div id="mainWrapper" class="main-wrapper w-full max-w-[1400px] rounded-xl overflow-hidden border border-white/10 navy-bg scoreboard-bar mb-10">
         
         <!-- Home Team Block -->
         <div class="team-block">
-            <div id="displayTeam1" class="text-white team-name-display uppercase truncate flex-1 text-xl lg:text-2xl">HOME TEAM</div>
+            <div id="displayTeam1" class="text-white team-name-display uppercase flex-1 text-2xl lg:text-3xl mr-4">HOME TEAM</div>
             <div id="score1" class="score-font text-white goal-box h-full">0</div>
         </div>
 
@@ -120,13 +125,13 @@
 
         <!-- Away Team Block -->
         <div class="team-block flex-row-reverse">
-            <div id="displayTeam2" class="text-white team-name-display uppercase truncate flex-1 text-right text-xl lg:text-2xl">AWAY TEAM</div>
+            <div id="displayTeam2" class="text-white team-name-display uppercase flex-1 text-right text-2xl lg:text-3xl ml-4">AWAY TEAM</div>
             <div id="score2" class="score-font text-white goal-box h-full">0</div>
         </div>
         
     </div>
 
-    <!-- Compact Control Panel (Kept at small width as requested previously) -->
+    <!-- Compact Control Panel -->
     <div class="control-panel bg-slate-900/95 p-5 rounded-2xl border border-white/10 w-full max-w-md text-white shadow-xl">
         
         <!-- Team Names -->
@@ -135,11 +140,11 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="text-[9px] text-slate-500 uppercase block mb-1">Home Name</label>
-                    <input type="text" id="inputTeam1" placeholder="HOME" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none">
+                    <input type="text" id="inputTeam1" placeholder="HOME" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none text-white">
                 </div>
                 <div>
                     <label class="text-[9px] text-slate-500 uppercase block mb-1">Away Name</label>
-                    <input type="text" id="inputTeam2" placeholder="AWAY" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none">
+                    <input type="text" id="inputTeam2" placeholder="AWAY" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none text-white">
                 </div>
             </div>
         </div>
