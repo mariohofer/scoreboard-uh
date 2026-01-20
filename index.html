@@ -95,11 +95,19 @@
             margin-bottom: 2px;
         }
 
-        /* Fixed Hidden Panel Implementation */
-        .hidden-panel { 
-            display: none !important; 
-            visibility: hidden;
-            pointer-events: none;
+        /* Using inline styles for critical hidden states to ensure GH Pages compatibility */
+        .admin-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: none; /* Controlled via JS style.display */
+            align-items: center;
+            justify-content: center;
         }
 
         @media (max-width: 767px) {
@@ -132,7 +140,7 @@
     </div>
 
     <!-- Password Modal -->
-    <div id="passwordModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center hidden-panel">
+    <div id="passwordModal" class="admin-modal-overlay">
         <div class="bg-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl w-full max-w-sm m-4">
             <h2 class="text-white font-bold mb-4 text-center">Admin Access</h2>
             <input type="password" id="passwordInput" placeholder="Password" class="w-full bg-slate-800 text-white p-3 rounded-lg mb-4 outline-none border border-white/10 focus:border-blue-500">
@@ -140,12 +148,12 @@
                 <button id="cancelBtn" class="flex-1 py-2 text-slate-400 hover:text-white">Cancel</button>
                 <button id="submitPassBtn" class="flex-[2] bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-bold">Login</button>
             </div>
-            <p id="errorMsg" class="text-red-500 text-xs mt-3 text-center hidden-panel">Access Denied.</p>
+            <p id="errorMsg" class="text-red-500 text-xs mt-3 text-center" style="display: none;">Access Denied.</p>
         </div>
     </div>
 
     <!-- Admin Panel -->
-    <div id="adminPanel" class="bg-slate-900/95 p-6 rounded-2xl border border-white/10 w-full max-w-md text-white shadow-xl hidden-panel">
+    <div id="adminPanel" class="bg-slate-900/95 p-6 rounded-2xl border border-white/10 w-full max-w-md text-white shadow-xl" style="display: none;">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xs font-black text-blue-400 uppercase tracking-widest">Control Panel</h3>
             <button id="logoutBtn" class="text-[10px] text-slate-500 hover:text-red-400 uppercase">Sign Out</button>
@@ -241,16 +249,26 @@
             });
         };
 
-        // UI Handlers
+        // UI Handlers - Using explicit style.display for high reliability
         const loginBtn = document.getElementById('loginTriggerBtn');
         const modal = document.getElementById('passwordModal');
         const passInput = document.getElementById('passwordInput');
         const submitBtn = document.getElementById('submitPassBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const err = document.getElementById('errorMsg');
+        const adminPanel = document.getElementById('adminPanel');
+        const viewerSection = document.getElementById('viewerSection');
 
-        loginBtn.onclick = () => modal.classList.remove('hidden-panel');
-        cancelBtn.onclick = () => modal.classList.add('hidden-panel');
+        loginBtn.onclick = () => {
+            modal.style.display = 'flex';
+            passInput.focus();
+        };
+
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+            err.style.display = 'none';
+            passInput.value = '';
+        };
         
         submitBtn.onclick = handleAuth;
         passInput.onkeydown = (e) => { if(e.key === 'Enter') handleAuth(); };
@@ -259,18 +277,18 @@
             if (passInput.value === ADMIN_PASSWORD) {
                 IS_AUTHORIZED = true;
                 sessionStorage.setItem('vball_admin_authorized', 'true');
-                modal.classList.add('hidden-panel');
+                modal.style.display = 'none';
                 showAdmin();
                 push();
             } else {
-                err.classList.remove('hidden-panel');
+                err.style.display = 'block';
                 passInput.value = '';
             }
         }
 
         function showAdmin() {
-            document.getElementById('adminPanel').classList.remove('hidden-panel');
-            document.getElementById('viewerSection').classList.add('hidden-panel');
+            adminPanel.style.display = 'block';
+            viewerSection.style.display = 'none';
             setupControls();
         }
 
