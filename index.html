@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Floorball Scoreboard - Slim Bar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-dark: #0a192f;
+            --navy-medium: #112240;
+            --gold: #fbbf24;
+            --accent-blue: #3b82f6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: transparent; 
+            min-height: 100vh;
+        }
+        
+        .score-font {
+            font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .team-name-display {
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .navy-bg { background-color: var(--navy-dark); }
+        .navy-accent { background-color: var(--navy-medium); }
+
+        /* Slim Bar Layout Styles */
+        .scoreboard-bar {
+            height: 60px;
+            display: flex;
+            align-items: stretch;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .team-block {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .goal-box {
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .center-info {
+            width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-left: 2px solid var(--accent-blue);
+            border-right: 2px solid var(--accent-blue);
+        }
+
+        .timer-text {
+            color: var(--gold);
+            font-family: 'ui-monospace', monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .period-text {
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: #94a3b8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 767px) {
+            .scoreboard-bar { height: 50px; }
+            .team-block { padding: 0 10px; }
+            .team-name-display { font-size: 0.8rem; }
+            .goal-box { width: 45px; font-size: 1.5rem; }
+            .center-info { width: 100px; }
+            .timer-text { font-size: 1.1rem; }
+            .period-text { font-size: 0.5rem; }
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-start">
+
+    <!-- Slim Horizontal Bar Scoreboard -->
+    <div id="mainWrapper" class="main-wrapper w-full max-w-5xl rounded-lg overflow-hidden border border-white/10 navy-bg scoreboard-bar mb-8">
+        
+        <!-- Home Team Block -->
+        <div class="team-block">
+            <div id="displayTeam1" class="text-white team-name-display uppercase truncate flex-1">HOME TEAM</div>
+            <div id="score1" class="score-font text-white goal-box h-full">0</div>
+        </div>
+
+        <!-- Center Match Info -->
+        <div class="center-info navy-accent">
+            <div class="period-text">PERIOD <span id="periodDisplay">1</span></div>
+            <div id="timer" class="timer-text">00:00</div>
+        </div>
+
+        <!-- Away Team Block -->
+        <div class="team-block flex-row-reverse">
+            <div id="displayTeam2" class="text-white team-name-display uppercase truncate flex-1 text-right">AWAY TEAM</div>
+            <div id="score2" class="score-font text-white goal-box h-full">0</div>
+        </div>
+        
+    </div>
+
+    <!-- Compact Control Panel -->
+    <div class="control-panel bg-slate-900/95 p-5 rounded-2xl border border-white/10 w-full max-w-md text-white shadow-xl">
+        
+        <!-- Team Names -->
+        <div class="mb-5 space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Match Settings</p>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[9px] text-slate-500 uppercase block mb-1">Home Name</label>
+                    <input type="text" id="inputTeam1" placeholder="HOME" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-[9px] text-slate-500 uppercase block mb-1">Away Name</label>
+                    <input type="text" id="inputTeam2" placeholder="AWAY" oninput="pushSettings()" class="w-full bg-slate-800 border-none rounded p-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Control -->
+        <div class="bg-white/5 p-4 rounded-xl border border-white/5 mb-5">
+            <div class="flex justify-between items-center mb-3">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Match Timer</p>
+                <div class="flex items-center gap-1">
+                    <input type="number" id="matchLength" value="20" oninput="updateDisplay()" class="w-8 bg-transparent text-center text-xs font-bold text-yellow-500 outline-none">
+                    <span class="text-[9px] text-slate-500 uppercase">Min</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="timerBtn" onclick="toggleTimer()" class="bg-emerald-600 hover:bg-emerald-500 flex-1 py-2.5 rounded-lg font-bold text-xs uppercase">Start Timer</button>
+                <button onclick="resetTimer()" class="bg-slate-700 px-4 py-2.5 rounded-lg text-xs font-bold uppercase">Reset</button>
+            </div>
+        </div>
+
+        <!-- Goals & Period -->
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="space-y-2">
+                <p class="text-[10px] font-bold text-slate-500 uppercase text-center">Home Goals</p>
+                <div class="flex gap-1">
+                    <button onclick="changeScore(1, 1)" class="bg-blue-600 hover:bg-blue-500 flex-1 py-3 rounded-lg font-bold text-lg">+</button>
+                    <button onclick="changeScore(1, -1)" class="bg-slate-800 px-3 rounded-lg">-</button>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[10px] font-bold text-slate-500 uppercase text-center">Away Goals</p>
+                <div class="flex gap-1">
+                    <button onclick="changeScore(2, 1)" class="bg-blue-600 hover:bg-blue-500 flex-1 py-3 rounded-lg font-bold text-lg">+</button>
+                    <button onclick="changeScore(2, -1)" class="bg-slate-800 px-3 rounded-lg">-</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 pt-4 border-t border-white/5">
+            <div class="flex gap-2">
+                <button onclick="changePeriod(-1)" class="bg-slate-800 px-4 py-3 rounded-lg text-xs font-bold uppercase">Prev</button>
+                <button onclick="changePeriod(1)" class="flex-1 bg-yellow-600 hover:bg-yellow-500 py-3 rounded-lg font-bold text-xs uppercase">Next Period</button>
+            </div>
+            <button onclick="resetMatch()" class="bg-red-900/20 hover:bg-red-900/40 text-red-400 text-[10px] uppercase font-bold py-2 rounded-lg transition-colors mt-2">Reset Entire Match</button>
+        </div>
+
+        <div class="mt-4 text-[9px] text-slate-500 text-center uppercase tracking-widest opacity-60">
+            Keys: Q/A (Home) | W/S (Away) | Space (Time) | N (Period)
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmz-qcfH3SY7GTEv1PZo2IwpmWHRnyC0c",
+            authDomain: "volley-scoreboard-5d345.firebaseapp.com",
+            projectId: "volley-scoreboard-5d345",
+            storageBucket: "volley-scoreboard-5d345.firebasestorage.app",
+            messagingSenderId: "1026855018988",
+            appId: "1:1026855018988:web:d5236fcf4e347bea73e0c9"
+        };
+
+        // Unique ID for Floorball
+        const appId = "floorball-slim-v2";
+        
+        let state = {
+            score1: 0, score2: 0, period: 1,
+            timeSeconds: 0, timerRunning: false,
+            team1Name: "HOME TEAM", team2Name: "AWAY TEAM"
+        };
+
+        let user = null;
+        let localTimer = null;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) setupRealtimeSync();
+        });
+
+        const startApp = async () => {
+            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+        };
+        startApp();
+
+        function setupRealtimeSync() {
+            // Path is unique because of appId
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'scoreboard', 'main');
+            onSnapshot(docRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    state = { ...state, ...snapshot.data() };
+                    syncInputFields();
+                    updateDisplay();
+                    handleTimerState();
+                } else { pushState(); }
+            }, (error) => console.error(error));
+        }
+
+        async function pushState() {
+            if (!user) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'scoreboard', 'main');
+            try { await setDoc(docRef, state, { merge: true }); } catch (e) { console.error(e); }
+        }
+
+        window.pushSettings = function() {
+            state.team1Name = document.getElementById('inputTeam1').value || "HOME TEAM";
+            state.team2Name = document.getElementById('inputTeam2').value || "AWAY TEAM";
+            updateDisplay();
+            pushState();
+        };
+
+        window.changeScore = function(team, delta) {
+            if (team === 1) state.score1 = Math.max(0, state.score1 + delta);
+            else state.score2 = Math.max(0, state.score2 + delta);
+            updateDisplay();
+            pushState();
+        };
+
+        window.changePeriod = function(delta) {
+            state.period = Math.max(1, Math.min(5, state.period + delta));
+            updateDisplay();
+            pushState();
+        };
+
+        window.toggleTimer = function() {
+            state.timerRunning = !state.timerRunning;
+            handleTimerState();
+            pushState();
+        };
+
+        window.resetTimer = function() {
+            state.timerRunning = false;
+            state.timeSeconds = 0;
+            handleTimerState();
+            updateDisplay();
+            pushState();
+        };
+
+        function handleTimerState() {
+            const btn = document.getElementById('timerBtn');
+            if (state.timerRunning) {
+                btn.innerText = "STOP TIMER";
+                btn.classList.replace('bg-emerald-600', 'bg-red-600');
+                if (!localTimer) {
+                    localTimer = setInterval(() => {
+                        state.timeSeconds++;
+                        updateDisplay();
+                        if (state.timeSeconds % 5 === 0) pushState();
+                    }, 1000);
+                }
+            } else {
+                btn.innerText = "START TIMER";
+                btn.classList.replace('bg-red-600', 'bg-emerald-600');
+                clearInterval(localTimer);
+                localTimer = null;
+            }
+        }
+
+        window.resetMatch = function() {
+            state = {
+                score1: 0, score2: 0, period: 1,
+                timeSeconds: 0, timerRunning: false,
+                team1Name: "HOME TEAM", team2Name: "AWAY TEAM"
+            };
+            updateDisplay(); syncInputFields(); pushState();
+        };
+
+        function syncInputFields() {
+            const iT1 = document.getElementById('inputTeam1');
+            const iT2 = document.getElementById('inputTeam2');
+            if (iT1 && document.activeElement !== iT1) iT1.value = state.team1Name;
+            if (iT2 && document.activeElement !== iT2) iT2.value = state.team2Name;
+        }
+
+        function updateDisplay() {
+            document.getElementById('displayTeam1').innerText = state.team1Name;
+            document.getElementById('displayTeam2').innerText = state.team2Name;
+            document.getElementById('score1').innerText = state.score1;
+            document.getElementById('score2').innerText = state.score2;
+            document.getElementById('periodDisplay').innerText = state.period;
+
+            const mins = Math.floor(state.timeSeconds / 60);
+            const secs = state.timeSeconds % 60;
+            const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('timer').innerText = timeStr;
+
+            const limit = parseInt(document.getElementById('matchLength').value) || 20;
+            if (mins >= limit) document.getElementById('timer').classList.add('text-red-500');
+            else document.getElementById('timer').classList.remove('text-red-500');
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            const key = e.key.toLowerCase();
+            if (key === 'q') changeScore(1, 1);
+            if (key === 'a') changeScore(1, -1);
+            if (key === 'w') changeScore(2, 1);
+            if (key === 's') changeScore(2, -1);
+            if (key === ' ') { e.preventDefault(); toggleTimer(); }
+            if (key === 'n') changePeriod(1);
+        });
+    </script>
+</body>
+</html>
