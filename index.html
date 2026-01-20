@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Floorball Scoreboard - Slim Bar</title>
+    <title>Pro Floorball Scoreboard - Wide Bar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -40,72 +40,75 @@
             display: flex;
             align-items: stretch;
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
 
         .team-block {
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            flex: 1;
+            padding: 0 25px;
+            flex: 1; /* This makes teams expand to fill wide space */
             min-width: 0;
         }
 
         .goal-box {
-            width: 60px;
+            width: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.2rem;
             background: rgba(255,255,255,0.05);
             border-left: 1px solid rgba(255,255,255,0.1);
             border-right: 1px solid rgba(255,255,255,0.1);
         }
 
         .center-info {
-            width: 180px;
+            width: 220px; /* Fixed width for the center so it stays anchored */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-left: 2px solid var(--accent-blue);
-            border-right: 2px solid var(--accent-blue);
+            border-left: 3px solid var(--accent-blue);
+            border-right: 3px solid var(--accent-blue);
+            flex-shrink: 0;
         }
 
         .timer-text {
             color: var(--gold);
             font-family: 'ui-monospace', monospace;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             line-height: 1;
         }
 
         .period-text {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 900;
             color: #94a3b8;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
         }
 
         @media (max-width: 767px) {
             .scoreboard-bar { height: 50px; }
             .team-block { padding: 0 10px; }
-            .team-name-display { font-size: 0.8rem; }
-            .goal-box { width: 45px; font-size: 1.5rem; }
-            .center-info { width: 100px; }
-            .timer-text { font-size: 1.1rem; }
-            .period-text { font-size: 0.5rem; }
+            .team-name-display { font-size: 0.85rem; }
+            .goal-box { width: 50px; font-size: 1.6rem; }
+            .center-info { width: 120px; border-left-width: 2px; border-right-width: 2px; }
+            .timer-text { font-size: 1.25rem; }
+            .period-text { font-size: 0.55rem; }
         }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center justify-start">
 
-    <!-- Slim Horizontal Bar Scoreboard -->
-    <div id="mainWrapper" class="main-wrapper w-full max-w-5xl rounded-lg overflow-hidden border border-white/10 navy-bg scoreboard-bar mb-8">
+    <!-- Widened Horizontal Bar Scoreboard -->
+    <!-- Changed max-w-5xl to max-w-[1400px] or w-full for desktop impact -->
+    <div id="mainWrapper" class="main-wrapper w-full max-w-[1400px] rounded-lg overflow-hidden border border-white/10 navy-bg scoreboard-bar mb-10">
         
         <!-- Home Team Block -->
         <div class="team-block">
-            <div id="displayTeam1" class="text-white team-name-display uppercase truncate flex-1">HOME TEAM</div>
+            <div id="displayTeam1" class="text-white team-name-display uppercase truncate flex-1 text-xl lg:text-2xl">HOME TEAM</div>
             <div id="score1" class="score-font text-white goal-box h-full">0</div>
         </div>
 
@@ -117,13 +120,13 @@
 
         <!-- Away Team Block -->
         <div class="team-block flex-row-reverse">
-            <div id="displayTeam2" class="text-white team-name-display uppercase truncate flex-1 text-right">AWAY TEAM</div>
+            <div id="displayTeam2" class="text-white team-name-display uppercase truncate flex-1 text-right text-xl lg:text-2xl">AWAY TEAM</div>
             <div id="score2" class="score-font text-white goal-box h-full">0</div>
         </div>
         
     </div>
 
-    <!-- Compact Control Panel -->
+    <!-- Compact Control Panel (Kept at small width as requested previously) -->
     <div class="control-panel bg-slate-900/95 p-5 rounded-2xl border border-white/10 w-full max-w-md text-white shadow-xl">
         
         <!-- Team Names -->
@@ -201,9 +204,7 @@
             appId: "1:1026855018988:web:d5236fcf4e347bea73e0c9"
         };
 
-        // Unique ID for Floorball
         const appId = "floorball-slim-v2";
-        
         let state = {
             score1: 0, score2: 0, period: 1,
             timeSeconds: 0, timerRunning: false,
@@ -227,7 +228,6 @@
         startApp();
 
         function setupRealtimeSync() {
-            // Path is unique because of appId
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'scoreboard', 'main');
             onSnapshot(docRef, (snapshot) => {
                 if (snapshot.exists()) {
