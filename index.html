@@ -105,7 +105,7 @@
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(12px);
             z-index: 9999;
-            display: none; /* Controlled via JS style.display */
+            display: none; 
             align-items: center;
             justify-content: center;
         }
@@ -213,10 +213,19 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'floorball-wide-v2';
+        // Hardcoded Config as requested
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCmz-qcfH3SY7GTEv1PZo2IwpmWHRnyC0c", 
+            authDomain: "volley-scoreboard-5d345.firebaseapp.com", 
+            projectId: "volley-scoreboard-5d345", 
+            storageBucket: "volley-scoreboard-5d345.firebasestorage.app", 
+            messagingSenderId: "1026855018988", 
+            appId: "1:1026855018988:web:d5236fcf4e347bea73e0c9" 
+        }; 
+
+        const appId = "match-001"; 
         const ADMIN_PASSWORD = "vball2024";
 
         let IS_AUTHORIZED = sessionStorage.getItem('vball_admin_authorized') === 'true';
@@ -228,16 +237,13 @@
         let localTimer = null;
 
         const init = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
+            await signInAnonymously(auth);
 
             onAuthStateChanged(auth, (user) => {
                 if (!user) return;
                 if (IS_AUTHORIZED) showAdmin();
                 
+                // Unified state listener
                 onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'match', 'state'), (snap) => {
                     if (snap.exists()) {
                         state = { ...state, ...snap.data() };
@@ -249,7 +255,7 @@
             });
         };
 
-        // UI Handlers - Using explicit style.display for high reliability
+        // UI Handlers - JavaScript-direct display control
         const loginBtn = document.getElementById('loginTriggerBtn');
         const modal = document.getElementById('passwordModal');
         const passInput = document.getElementById('passwordInput');
